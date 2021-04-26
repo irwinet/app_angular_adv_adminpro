@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { rejects } from 'node:assert';
 
 @Component({
   selector: 'app-promesas',
