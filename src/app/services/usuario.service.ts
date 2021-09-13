@@ -37,4 +37,15 @@ export class UsuarioService {
       );
 
   }
+
+  loginGoogle(token) {
+
+    return this.http.post(`${base_url}/login/google`, { token })
+      .pipe(
+        tap((resp: any) => {
+          localStorage.setItem('token', resp.token);
+        })
+      );
+
+  }
 }
