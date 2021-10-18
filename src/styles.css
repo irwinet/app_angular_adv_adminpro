@@ -17,3 +17,8 @@
     display: flex;
     text-align: center;
 }
+
+.img-avatar{
+    height: 200px;
+    width: 200px;
+}
