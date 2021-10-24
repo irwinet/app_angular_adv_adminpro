@@ -144,9 +144,9 @@ export class UsuarioService {
       .pipe(
         // delay(5000),
         map(resp => {
-          // console.log(resp);
+          //console.log(resp);
           const usuarios = resp.usuarios.map(
-            user => new Usuario(user.nombre, user.email, '', user.img, user.google, user.uid)
+            user => new Usuario(user.nombre, user.email, '', user.img, user.google, user.role, user.uid)
           );
 
           return {
@@ -155,5 +155,10 @@ export class UsuarioService {
           };
         })
       )
+  }
+
+  eliminarUsuario(usuario: Usuario){
+    const url = `${base_url}/usuarios/${usuario.uid}`;
+    return this.http.delete(url, this.headers);
   }
 }
