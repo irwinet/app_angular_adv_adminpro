@@ -4,7 +4,9 @@
             <div class="card-body">
                 <input type="text" 
                     class="form-control"
-                    placeholder="Buscar Usuario...">
+                    placeholder="Buscar Usuario..."
+                    (keyup)="buscar(txtTermino.value)"
+                    #txtTermino />
             </div>
         </div>
     </div>
@@ -59,13 +61,15 @@
                         </tbody>
                     </table>
 
-                    <button (click)="cambiarPagina(-5)" class="btn btn-secondary">
-                        Anteriores
-                    </button>
-                    &nbsp;
-                    <button (click)="cambiarPagina(5)" class="btn btn-secondary">
-                        Siguientes
-                    </button>                    
+                    <div *ngIf="txtTermino.value.length === 0">
+                        <button (click)="cambiarPagina(-5)" class="btn btn-secondary">
+                            Anteriores
+                        </button>
+                        &nbsp;
+                        <button (click)="cambiarPagina(5)" class="btn btn-secondary">
+                            Siguientes
+                        </button> 
+                    </div>                                       
                     
                 </div>
             </div>
