@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { Hospital } from 'src/app/models/hospital.model';
+import { BusquedasService } from 'src/app/services/busquedas.service';
 import { HospitalService } from 'src/app/services/hospital.service';
 import { ModalImagenService } from 'src/app/services/modal-imagen.service';
 import Swal from 'sweetalert2';
@@ -15,10 +16,12 @@ import Swal from 'sweetalert2';
 export class HospitalesComponent implements OnInit, OnDestroy {
 
   public hospitales: Hospital[] = [];
+  public hospitalesTemp: Hospital[] = [];
   public cargando: boolean = true;
   private imgSubscribe : Subscription;
 
   constructor(private hospitalService: HospitalService,
+    private busquedaService: BusquedasService,
     private modalImagenService: ModalImagenService) { }
   
   ngOnDestroy(): void {
@@ -40,6 +43,7 @@ export class HospitalesComponent implements OnInit, OnDestroy {
       .subscribe(hospitales => {
         this.cargando = false;
         this.hospitales = hospitales;
+        this.hospitalesTemp = hospitales;
       });
   }
 
@@ -59,7 +63,7 @@ export class HospitalesComponent implements OnInit, OnDestroy {
   }
 
   async abrirSweetAlert() {
-    const { value } = await Swal.fire<string>({
+    const { value = '' } = await Swal.fire<string>({
       title: 'Crear Hospital',
       text: 'Ingrese el nombre del nuevo hospital',
       input: 'text',
@@ -78,6 +82,17 @@ export class HospitalesComponent implements OnInit, OnDestroy {
   abrirModal(hospital: Hospital) {
     // console.log(hospital);
     this.modalImagenService.abrirModal('hospitales', hospital._id, hospital.img);
+  }
+
+  buscar(termino: string){
+    if (termino.length == 0) {
+      return this.hospitales = this.hospitalesTemp;
+    }
+
+    this.busquedaService.buscar('hospitales', termino)
+      .subscribe(resp => {
+        this.hospitales = resp;
+      });
   }
 
 }
