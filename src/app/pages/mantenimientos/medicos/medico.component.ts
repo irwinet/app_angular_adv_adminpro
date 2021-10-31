@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { delay } from 'rxjs/operators';
 import { Hospital } from 'src/app/models/hospital.model';
 import { Medico } from 'src/app/models/medico.model';
 import { HospitalService } from 'src/app/services/hospital.service';
@@ -23,9 +24,17 @@ export class MedicoComponent implements OnInit {
   constructor(private fb: FormBuilder,
     private hospitalService: HospitalService,
     private medicoService: MedicoService,
-    private router: Router) { }
+    private router: Router,
+    private activatedRoute: ActivatedRoute) { }
 
   ngOnInit(): void {
+
+    this.activatedRoute.params
+      .subscribe(({ id }) => {
+        // console.log(id);
+        this.cargarMedico(id);
+      });
+
     this.medicoForm = this.fb.group({
       nombre: ['', Validators.required],
       hospital: ['', Validators.required]
@@ -36,6 +45,31 @@ export class MedicoComponent implements OnInit {
       .subscribe(hospitalId => {
         this.hospitalSeleccionado = this.hospitales.find(h => h._id == hospitalId);
         // console.log(this.hospitalSeleccionado);
+      });
+  }
+
+  cargarMedico(id: string) {
+
+    if (id === 'nuevo') {
+      return;
+    }
+
+    this.medicoService.obtenerMedicoPorId(id)
+       .pipe(
+         delay(100)
+       )
+      .subscribe(medico => {
+
+        // if (!medico) {
+        //   return this.router.navigateByUrl(`/dashboard/medicos`);
+        // }
+
+        // console.log(medico);
+        const { nombre, hospital: { _id } } = medico;
+        this.medicoSeleccionado = medico;
+        this.medicoForm.setValue({ nombre, hospital: _id });
+      }, error => {
+        return this.router.navigateByUrl(`/dashboard/medicos`);
       });
   }
 
@@ -52,13 +86,28 @@ export class MedicoComponent implements OnInit {
 
     const { nombre } = this.medicoForm.value;
 
-    this.medicoService.crearMedico(this.medicoForm.value)
-      .subscribe((resp: any) => {
-        // console.log(resp);
-        Swal.fire('Creado', `${nombre} creado correctamente`, 'success');
+    if (this.medicoSeleccionado) {
+      const data = {
+        ...this.medicoForm.value,
+        _id: this.medicoSeleccionado._id
+      };
+      this.medicoService.actualizarMedico(data)
+        .subscribe(resp => {
+          console.log(resp);
+          Swal.fire('Actualizado', `${nombre} actualizado correctamente`, 'success');
+        });
+    }
+    else {
 
-        this.router.navigateByUrl(`/dashboard/medico/${resp.medico._id}`);
-      });
+      this.medicoService.crearMedico(this.medicoForm.value)
+        .subscribe((resp: any) => {
+          // console.log(resp);
+          Swal.fire('Creado', `${nombre} creado correctamente`, 'success');
+
+          this.router.navigateByUrl(`/dashboard/medico/${resp.medico._id}`);
+        });
+    }
+
   }
 
 }
