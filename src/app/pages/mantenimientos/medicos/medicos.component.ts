@@ -5,6 +5,7 @@ import { Medico } from 'src/app/models/medico.model';
 import { BusquedasService } from 'src/app/services/busquedas.service';
 import { MedicoService } from 'src/app/services/medico.service';
 import { ModalImagenService } from 'src/app/services/modal-imagen.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-medicos',
@@ -60,6 +61,30 @@ export class MedicosComponent implements OnInit, OnDestroy {
       .subscribe(resp => {
         this.medicos = resp;
       });
+  }
+
+  borrarMedico(medico : Medico){
+    Swal.fire({
+      title: 'Borrar medico?',
+      text: `Esta a punto de borrar a ${medico.nombre}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Si, borrarlo!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.medicoService.eliminarMedico(medico._id)
+          .subscribe(resp => {
+
+            this.cargarMedicos();
+
+            Swal.fire(
+              "Medico borrado",
+              `${medico.nombre} fue eliminado correctamente`,
+              'success'
+            );
+          });
+      }
+    })
   }
 
 }
